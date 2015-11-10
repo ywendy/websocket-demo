@@ -1,5 +1,8 @@
 package org.tony.websocket.demo1;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
 import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
@@ -23,6 +26,7 @@ public class WebsocketServerDemo1 {
 	public void onOpen(Session session, @PathParam("machineCode") String machineCode) {
 		logger.info("machineCode={}", machineCode);
 		logger.info("OPen>>>>session id =" + session.getId());
+		//session.addMessageHandler(new PingMessageHandler());
 		// session.setMaxTextMessageBufferSize(32);
 		System.out.println(session.getMaxIdleTimeout() + " 最大输入大小：" + session.getMaxTextMessageBufferSize());
 		WebsocketSession.put(machineCode, session);
@@ -40,9 +44,18 @@ public class WebsocketServerDemo1 {
 	}
 
 	@OnMessage
-	public void echoPongMessage(PongMessage pm) {
+	public void echoPongMessage(PongMessage pm,Session session) {
 		// 无处理
 		logger.info("pong message :" + pm.toString());
+		try {
+			session.getBasicRemote().sendPong(ByteBuffer.wrap("tony".getBytes()));
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@OnError
